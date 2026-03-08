@@ -1008,16 +1008,29 @@ function showSection(name, link) {
 
 // ═══════════════════════════════════════════════════
 // PDF VIEWER — read only, no download
+// Uses archive.org embed viewer for archive.org files
 // ═══════════════════════════════════════════════════
 function openBook(id, title, fileUrl) {
   if (!fileUrl || fileUrl === 'null') return;
   document.getElementById('modalTitle').textContent = title;
   const container = document.getElementById('pdfContainer');
-  const pdfJsUrl  = `https://mozilla.github.io/pdf.js/web/viewer.html?file=${encodeURIComponent(fileUrl)}#toolbar=0`;
+
+  let embedUrl;
+  if (fileUrl.includes('archive.org')) {
+    // Extract item ID from any archive.org URL format and use embed viewer
+    const match = fileUrl.match(/archive\.org\/(?:download|details|embed)\/([^\/\?]+)/);
+    embedUrl = match
+      ? `https://archive.org/embed/${match[1]}?ui=embed#mode/1up`
+      : fileUrl;
+  } else {
+    // Direct PDF — use PDF.js
+    embedUrl = `https://mozilla.github.io/pdf.js/web/viewer.html?file=${encodeURIComponent(fileUrl)}#toolbar=0`;
+  }
+
   container.innerHTML = `
-    <iframe src="${pdfJsUrl}" title="${title}" allowfullscreen
+    <iframe src="${embedUrl}" title="${title}" allowfullscreen
       style="width:100%;height:calc(100% - 44px);border:none;"
-      sandbox="allow-scripts allow-same-origin allow-forms"></iframe>
+      allow="fullscreen"></iframe>
     <div style="height:44px;background:var(--dark2);border-top:1px solid rgba(232,130,12,0.2);
       display:flex;align-items:center;justify-content:center;gap:20px;">
       <span style="font-family:'Cinzel',serif;font-size:0.68rem;letter-spacing:0.18em;color:var(--muted);">
