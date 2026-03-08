@@ -1028,16 +1028,24 @@ function openBook(id, title, fileUrl) {
   }
 
   container.innerHTML = `
-    <iframe src="${embedUrl}" title="${title}" allowfullscreen
-      style="width:100%;height:calc(100% - 44px);border:none;"
-      allow="fullscreen"></iframe>
-    <div style="height:44px;background:var(--dark2);border-top:1px solid rgba(232,130,12,0.2);
-      display:flex;align-items:center;justify-content:center;gap:20px;">
+    <div style="position:relative;width:100%;height:calc(100% - 44px);overflow:hidden;">
+      <iframe src="${embedUrl}" title="${title}"
+        style="width:100%;height:calc(100% + 240px);border:none;"
+        allow="fullscreen"
+        sandbox="allow-scripts allow-same-origin allow-forms"></iframe>
+      <div style="position:absolute;bottom:0;left:0;right:0;height:250px;
+        background:linear-gradient(to bottom,transparent 0%,#0D0804 35%);
+        pointer-events:none;z-index:10;"></div>
+      <div style="position:absolute;bottom:0;left:0;right:0;height:175px;
+        background:#0D0804;pointer-events:none;z-index:11;"></div>
+    </div>
+    <div style="height:44px;background:var(--dark2);border-top:1px solid rgba(232,130,12,0.3);
+      display:flex;align-items:center;justify-content:center;gap:20px;flex-shrink:0;">
       <span style="font-family:'Cinzel',serif;font-size:0.68rem;letter-spacing:0.18em;color:var(--muted);">
-        ✦ READ-ONLY · NO DOWNLOAD ✦
+        ❖ READ-ONLY · NO DOWNLOAD ❖
       </span>
-      <span style="font-family:'Cormorant Garamond',serif;font-size:1rem;color:rgba(240,192,64,0.6);">ॐ आदेश !</span>
-    </div>`;
+      <span style="font-family:'Cormorant Garamond',serif;font-size:1rem;color:rgba(240,192,64,0.6);">ॉं आदेश !</span>
+    </div>`
   document.getElementById('pdfModal').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
@@ -1048,11 +1056,60 @@ function closeModal() {
   document.body.style.overflow = '';
 }
 
-// Block right-click and keyboard shortcuts
+
+// ═══════════════════════════════════════════════════
+// ANTI-DOWNLOAD PROTECTION — blocks casual users
+// ═══════════════════════════════════════════════════
+
+// 1. Block right-click everywhere
 document.addEventListener('contextmenu', e => e.preventDefault());
+
+// 2. Block keyboard shortcuts: Ctrl+S, Ctrl+P, Ctrl+U, F12, DevTools
 document.addEventListener('keydown', e => {
-  if (e.ctrlKey && ['s','p','u'].includes(e.key.toLowerCase())) e.preventDefault();
+  const k = e.key.toLowerCase();
+  if (e.ctrlKey && ['s','p','u'].includes(k)) { e.preventDefault(); return; }
+  if (e.ctrlKey && e.shiftKey && ['i','j','c'].includes(k)) { e.preventDefault(); return; }
+  if (k === 'f12') { e.preventDefault(); return; }
 });
+
+// 3. Close PDF modal if devtools detected (hides the source URL from Network tab)
+setInterval(() => {
+  if (window.outerWidth - window.innerWidth > 160 ||
+      window.outerHeight - window.innerHeight > 160) {
+    closeModal();
+  }
+}, 1500);
+
+// 4. Block drag-saving
+document.addEventListener('dragstart', e => e.preventDefault());
+
+// 5. Block text selection inside modal and cards
+document.addEventListener('selectstart', e => {
+  if (e.target.closest('#pdfModal, .book-card, header, footer')) e.preventDefault();
+});
+
+// 6. Obfuscate archive URLs — encode them so they are not plain text in source
+function _enc(url) { return btoa(unescape(encodeURIComponent(url))); }
+function _dec(s)   { return decodeURIComponent(escape(atob(s))); }
+
+function openBookSafe(id, title, encodedUrl) {
+  openBook(id, title, _dec(encodedUrl));
+}
+
+// Patch renderBookCard to use encoded URLs
+const _origCard = renderBookCard;
+renderBookCard = function(book) {
+  const card = _origCard(book);
+  if (book.file) {
+    const btn = card.querySelector('.read-btn');
+    if (btn && !btn.style.cursor.includes('default')) {
+      const enc = _enc(book.file);
+      btn.setAttribute('onclick',
+        `openBookSafe('${book.id}','${book.title.replace(/'/g,"\'")}','${enc}')`);
+    }
+  }
+  return card;
+};
 
 loadBooks();
 </script>
