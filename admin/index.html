@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin — Nath Digital Archives</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --saffron: #E8820C;
+      --gold: #D4A017;
+      --gold-light: #F0C040;
+      --dark: #1A1208;
+      --dark2: #2C1F0A;
+      --mid: #5C3D1A;
+      --ash: #F5F0E8;
+      --muted: #8B6845;
+      --red: #C0392B;
+      --green: #27AE60;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background: var(--dark);
+      color: var(--ash);
+      font-family: 'Cormorant Garamond', serif;
+      min-height: 100vh;
+    }
+    body::before {
+      content:'';
+      position:fixed;inset:0;
+      background: radial-gradient(ellipse at 50% 0%, rgba(232,130,12,0.12) 0%, transparent 60%);
+      pointer-events:none;z-index:0;
+    }
+
+    /* === LOGIN === */
+    .login-screen {
+      position:fixed;inset:0;
+      display:flex;align-items:center;justify-content:center;
+      background:var(--dark);z-index:100;
+    }
+    .login-box {
+      background: rgba(44,31,10,0.9);
+      border: 1px solid rgba(232,130,12,0.4);
+      padding: 50px 40px;
+      width: 100%;
+      max-width: 420px;
+      text-align: center;
+      border-radius: 4px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+    .login-om { font-size: 3rem; color: var(--saffron); margin-bottom: 8px; }
+    .login-title {
+      font-family:'Cinzel',serif;
+      font-size: 1.4rem;
+      color: var(--gold-light);
+      letter-spacing: 0.15em;
+      margin-bottom: 6px;
+    }
+    .login-sub {
+      font-style:italic;
+      color:var(--muted);
+      font-size:0.9rem;
+      margin-bottom:32px;
+    }
+    .field-group { margin-bottom: 18px; text-align:left; }
+    .field-group label {
+      display:block;
+      font-family:'Cinzel',serif;
+      font-size:0.7rem;
+      letter-spacing:0.2em;
+      color:var(--muted);
+      text-transform:uppercase;
+      margin-bottom:6px;
+    }
+    .field-group input {
+      width:100%;
+      padding:12px 16px;
+      background:rgba(26,18,8,0.8);
+      border:1px solid rgba(232,130,12,0.3);
+      color:var(--ash);
+      font-family:'Cormorant Garamond',serif;
+      font-size:1rem;
+      outline:none;
+      border-radius:2px;
+      transition:border-color 0.3s;
+    }
+    .field-group input:focus { border-color:var(--saffron); }
+    .login-btn {
+      width:100%;
+      padding:14px;
+      background:var(--saffron);
+      border:none;
+      color:var(--dark);
+      font-family:'Cinzel',serif;
+      font-size:0.85rem;
+      letter-spacing:0.2em;
+      text-transform:uppercase;
+      cursor:pointer;
+      border-radius:2px;
+      transition:all 0.3s;
+      margin-top:8px;
+    }
+    .login-btn:hover { background:var(--gold-light); }
+    .login-error {
+      color:var(--red);
+      font-size:0.85rem;
+      margin-top:12px;
+      font-style:italic;
+      display:none;
+    }
+    .back-link {
+      display:inline-block;
+      margin-top:24px;
+      color:var(--muted);
+      text-decoration:none;
+      font-size:0.8rem;
+      font-family:'Cinzel',serif;
+      letter-spacing:0.1em;
+    }
+    .back-link:hover { color:var(--saffron); }
+
+    /* === ADMIN PANEL === */
+    .admin-panel { display:none; position:relative; z-index:5; }
+
+    .admin-header {
+      background:var(--dark2);
+      border-bottom:1px solid rgba(232,130,12,0.3);
+      padding:16px 32px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      flex-wrap:wrap;
+      gap:12px;
+    }
+    .admin-logo {
+      font-family:'Cinzel',serif;
+      font-size:1rem;
+      color:var(--gold-light);
+      letter-spacing:0.15em;
+    }
+    .admin-logo span { color:var(--saffron); margin-right:8px; }
+    .admin-nav { display:flex; gap:16px; }
+    .admin-nav button {
+      background:none;
+      border:none;
+      color:var(--muted);
+      font-family:'Cinzel',serif;
+      font-size:0.75rem;
+      letter-spacing:0.15em;
+      cursor:pointer;
+      padding:6px 12px;
+      border-radius:2px;
+      text-transform:uppercase;
+      transition:all 0.3s;
+    }
+    .admin-nav button.active, .admin-nav button:hover {
+      color:var(--gold-light);
+      background:rgba(232,130,12,0.1);
+    }
+    .logout-btn {
+      background:none !important;
+      border:1px solid rgba(192,57,43,0.4) !important;
+      color:var(--red) !important;
+    }
+    .logout-btn:hover { background:rgba(192,57,43,0.15) !important; }
+
+    .admin-content { padding: 32px; max-width: 1100px; margin: 0 auto; }
+
+    /* === TABS === */
+    .tab-content { display:none; }
+    .tab-content.active { display:block; }
+
+    /* === UPLOAD AREA === */
+    .upload-section {
+      background:rgba(44,31,10,0.5);
+      border:1px solid rgba(232,130,12,0.2);
+      border-radius:4px;
+      padding:32px;
+      margin-bottom:32px;
+    }
+    .section-heading {
+      font-family:'Cinzel',serif;
+      font-size:1rem;
+      color:var(--gold);
+      letter-spacing:0.15em;
+      margin-bottom:24px;
+      padding-bottom:12px;
+      border-bottom:1px solid rgba(232,130,12,0.2);
+    }
+    .form-row {
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:16px;
+      margin-bottom:16px;
+    }
+    @media (max-width:600px) { .form-row { grid-template-columns:1fr; } }
+    .form-field { display:flex; flex-direction:column; gap:6px; }
+    .form-field label {
+      font-family:'Cinzel',serif;
+      font-size:0.7rem;
+      letter-spacing:0.18em;
+      color:var(--muted);
+      text-transform:uppercase;
+    }
+    .form-field input, .form-field select, .form-field textarea {
+      padding:10px 14px;
+      background:rgba(26,18,8,0.8);
+      border:1px solid rgba(232,130,12,0.25);
+      color:var(--ash);
+      font-family:'Cormorant Garamond',serif;
+      font-size:0.95rem;
+      outline:none;
+      border-radius:2px;
+      transition:border-color 0.3s;
+    }
+    .form-field input:focus, .form-field select:focus, .form-field textarea:focus {
+      border-color:var(--saffron);
+    }
+    .form-field select option { background:var(--dark2); }
+    .form-field textarea { resize:vertical; min-height:80px; }
+
+    .drop-zone {
+      border:2px dashed rgba(232,130,12,0.35);
+      border-radius:4px;
+      padding:40px;
+      text-align:center;
+      cursor:pointer;
+      transition:all 0.3s;
+      margin:16px 0;
+      background:rgba(26,18,8,0.4);
+    }
+    .drop-zone:hover, .drop-zone.dragover {
+      border-color:var(--saffron);
+      background:rgba(232,130,12,0.05);
+    }
+    .drop-zone-icon { font-size:2.5rem; margin-bottom:10px; }
+    .drop-zone p { color:var(--muted); font-style:italic; font-size:0.95rem; }
+    .drop-zone p strong { color:var(--saffron); }
+    .drop-zone input[type=file] { display:none; }
+
+    .token-field-row {
+      background:rgba(232,130,12,0.05);
+      border:1px solid rgba(232,130,12,0.2);
+      border-radius:4px;
+      padding:16px;
+      margin-bottom:16px;
+    }
+    .token-field-row p {
+      font-size:0.85rem;
+      color:var(--muted);
+      font-style:italic;
+      margin-bottom:10px;
+      line-height:1.5;
+    }
+
+    .btn-primary {
+      padding:12px 32px;
+      background:var(--saffron);
+      border:none;
+      color:var(--dark);
+      font-family:'Cinzel',serif;
+      font-size:0.8rem;
+      letter-spacing:0.2em;
+      text-transform:uppercase;
+      cursor:pointer;
+      border-radius:2px;
+      transition:all 0.3s;
+    }
+    .btn-primary:hover { background:var(--gold-light); }
+    .btn-primary:disabled { opacity:0.5; cursor:not-allowed; }
+
+    .btn-danger {
+      padding:8px 16px;
+      background:transparent;
+      border:1px solid rgba(192,57,43,0.4);
+      color:var(--red);
+      font-family:'Cinzel',serif;
+      font-size:0.65rem;
+      letter-spacing:0.15em;
+      text-transform:uppercase;
+      cursor:pointer;
+      border-radius:2px;
+      transition:all 0.3s;
+    }
+    .btn-danger:hover { background:rgba(192,57,43,0.1); }
+
+    /* === STATUS === */
+    .status-msg {
+      padding:14px 18px;
+      border-radius:3px;
+      margin-top:16px;
+      font-style:italic;
+      display:none;
+    }
+    .status-msg.success { background:rgba(39,174,96,0.15); border:1px solid rgba(39,174,96,0.4); color:#5dbb7f; display:block; }
+    .status-msg.error   { background:rgba(192,57,43,0.15); border:1px solid rgba(192,57,43,0.4); color:#e07070; display:block; }
+    .status-msg.loading { background:rgba(232,130,12,0.1); border:1px solid rgba(232,130,12,0.3); color:var(--saffron); display:block; }
+
+    /* === PROGRESS === */
+    .progress-bar-wrap {
+      height:4px;
+      background:rgba(232,130,12,0.15);
+      border-radius:2px;
+      margin-top:12px;
+      display:none;
+    }
+    .progress-bar {
+      height:100%;
+      background:var(--saffron);
+      border-radius:2px;
+      transition:width 0.3s;
+      width:0%;
+    }
+
+    /* === BOOKS TABLE === */
+    .books-table {
+      width:100%;
+      border-collapse:collapse;
+    }
+    .books-table th {
+      font-family:'Cinzel',serif;
+      font-size:0.7rem;
+      letter-spacing:0.15em;
+      color:var(--muted);
+      text-transform:uppercase;
+      padding:12px 16px;
+      text-align:left;
+      border-bottom:1px solid rgba(232,130,12,0.2);
+    }
+    .books-table td {
+      padding:14px 16px;
+      border-bottom:1px solid rgba(232,130,12,0.1);
+      font-size:0.9rem;
+      vertical-align:middle;
+    }
+    .books-table tr:hover td { background:rgba(232,130,12,0.04); }
+    .badge {
+      display:inline-block;
+      padding:3px 10px;
+      border-radius:2px;
+      font-family:'Cinzel',serif;
+      font-size:0.6rem;
+      letter-spacing:0.1em;
+      text-transform:uppercase;
+    }
+    .badge-ok { background:rgba(39,174,96,0.2); color:#5dbb7f; border:1px solid rgba(39,174,96,0.3); }
+    .badge-na { background:rgba(139,104,69,0.2); color:var(--muted); border:1px solid rgba(139,104,69,0.3); }
+
+    /* === STATS === */
+    .stats-row {
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
+      gap:16px;
+      margin-bottom:32px;
+    }
+    .stat-card {
+      background:rgba(44,31,10,0.6);
+      border:1px solid rgba(232,130,12,0.2);
+      border-radius:4px;
+      padding:20px;
+      text-align:center;
+    }
+    .stat-num {
+      font-family:'Cinzel',serif;
+      font-size:2rem;
+      color:var(--gold-light);
+      display:block;
+    }
+    .stat-lbl {
+      font-size:0.75rem;
+      color:var(--muted);
+      font-style:italic;
+      margin-top:4px;
+    }
+
+    /* === GUIDE === */
+    .guide-block {
+      background:rgba(44,31,10,0.5);
+      border:1px solid rgba(232,130,12,0.2);
+      border-radius:4px;
+      padding:24px;
+      margin-bottom:16px;
+    }
+    .guide-block h3 {
+      font-family:'Cinzel',serif;
+      font-size:0.9rem;
+      color:var(--gold);
+      margin-bottom:12px;
+    }
+    .guide-block ol, .guide-block ul {
+      padding-left:20px;
+      color:rgba(245,240,232,0.7);
+      line-height:2;
+      font-size:0.95rem;
+    }
+    .guide-block code {
+      background:rgba(232,130,12,0.1);
+      border:1px solid rgba(232,130,12,0.2);
+      padding:2px 8px;
+      border-radius:2px;
+      font-family:monospace;
+      font-size:0.85rem;
+      color:var(--gold-light);
+    }
+    .copy-code {
+      background:rgba(26,18,8,0.9);
+      border:1px solid rgba(232,130,12,0.2);
+      padding:16px;
+      border-radius:3px;
+      font-family:monospace;
+      font-size:0.82rem;
+      color:var(--gold-light);
+      margin:8px 0;
+      overflow-x:auto;
+      white-space:pre;
+    }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-box">
+    <div class="login-om">ॐ</div>
+    <div class="login-title">Archive Keeper</div>
+    <p class="login-sub">Admin access — Nath Digital Archives</p>
+
+    <div class="field-group">
+      <label>Username</label>
+      <input type="text" id="loginUser" placeholder="keeper" autocomplete="off"/>
+    </div>
+    <div class="field-group">
+      <label>Password</label>
+      <input type="password" id="loginPass" placeholder="••••••••" onkeydown="if(event.key==='Enter') doLogin()"/>
+    </div>
+    <button class="login-btn" onclick="doLogin()">Enter the Archive</button>
+    <div class="login-error" id="loginError">Invalid credentials. Access denied.</div>
+    <a href="../index.html" class="back-link">← Return to Public Archive</a>
+  </div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div class="admin-panel" id="adminPanel">
+  <div class="admin-header">
+    <div class="admin-logo"><span>ॐ</span>Nath Archives · Admin</div>
+    <div class="admin-nav">
+      <button class="active" onclick="switchTab('upload', this)">Upload</button>
+      <button onclick="switchTab('manage', this)">Manage</button>
+      <button onclick="switchTab('guide', this)">Setup Guide</button>
+      <button class="logout-btn" onclick="doLogout()">Logout</button>
+    </div>
+  </div>
+
+  <div class="admin-content">
+
+    <!-- STATS -->
+    <div class="stats-row" id="statsRow">
+      <div class="stat-card"><span class="stat-num" id="statTotal">0</span><div class="stat-lbl">Total Texts</div></div>
+      <div class="stat-card"><span class="stat-num" id="statPDF">0</span><div class="stat-lbl">PDFs / eBooks</div></div>
+      <div class="stat-card"><span class="stat-num" id="statCats">0</span><div class="stat-lbl">Categories</div></div>
+      <div class="stat-card"><span class="stat-num" id="statFeatured">0</span><div class="stat-lbl">Featured</div></div>
+    </div>
+
+    <!-- UPLOAD TAB -->
+    <div class="tab-content active" id="tab-upload">
+      <div class="upload-section">
+        <div class="section-heading">Upload New Text / File</div>
+
+        <div class="token-field-row">
+          <p>🔑 <strong>GitHub Personal Access Token</strong> — Required for uploading. The token is used only in your browser session (not stored). Generate one at: <a href="https://github.com/settings/tokens" target="_blank" style="color:var(--saffron);">github.com/settings/tokens</a> with <code>repo</code> scope.</p>
+          <div class="form-field">
+            <label>GitHub Token</label>
+            <input type="password" id="ghToken" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"/>
+          </div>
+          <div class="form-field" style="margin-top:10px;">
+            <label>Repository (owner/repo)</label>
+            <input type="text" id="ghRepo" placeholder="your-username/nath-archives" id="ghRepo"/>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-field">
+            <label>Title *</label>
+            <input type="text" id="bookTitle" placeholder="Goraksha Samhita"/>
+          </div>
+          <div class="form-field">
+            <label>Author / Source</label>
+            <input type="text" id="bookAuthor" placeholder="Gorakhnath / Traditional"/>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-field">
+            <label>Category</label>
+            <select id="bookCategory">
+              <option value="Scripture">Scripture</option>
+              <option value="Philosophy">Philosophy</option>
+              <option value="Yoga">Yoga</option>
+              <option value="Biography">Biography / Hagiography</option>
+              <option value="Mantra">Mantra & Tantra</option>
+              <option value="History">History</option>
+              <option value="Devotional">Devotional Poetry</option>
+              <option value="Commentary">Commentary</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label>Language</label>
+            <input type="text" id="bookLang" placeholder="Sanskrit / English / Hindi…"/>
+          </div>
+        </div>
+
+        <div class="form-field" style="margin-bottom:16px;">
+          <label>Description</label>
+          <textarea id="bookDesc" placeholder="Brief description of this text…"></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-field">
+            <label>Cover Color (hex)</label>
+            <input type="color" id="bookColor" value="#8B2500" style="height:42px;cursor:pointer;"/>
+          </div>
+          <div class="form-field">
+            <label>Feature on Homepage?</label>
+            <select id="bookFeatured">
+              <option value="true">Yes — show on homepage</option>
+              <option value="false">No — library only</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+          <div class="drop-zone-icon">📄</div>
+          <p><strong>Click to select file</strong> or drag & drop here</p>
+          <p style="font-size:0.8rem;margin-top:6px;">PDF, EPUB, images accepted · Max 25MB per file</p>
+          <input type="file" id="fileInput" accept=".pdf,.epub,.jpg,.jpeg,.png,.gif" onchange="handleFileSelect(this.files[0])"/>
+        </div>
+        <div id="selectedFile" style="color:var(--saffron);font-style:italic;font-size:0.9rem;display:none;margin-bottom:12px;"></div>
+
+        <!-- Optional cover image -->
+        <div class="form-field" style="margin-bottom:20px;">
+          <label>Cover Image (optional — separate upload)</label>
+          <input type="file" id="coverInput" accept=".jpg,.jpeg,.png" style="padding:8px;"/>
+        </div>
+
+        <button class="btn-primary" onclick="uploadBook()" id="uploadBtn">Upload to Archive</button>
+        <div class="progress-bar-wrap" id="progressWrap"><div class="progress-bar" id="progressBar"></div></div>
+        <div class="status-msg" id="uploadStatus"></div>
+      </div>
+    </div>
+
+    <!-- MANAGE TAB -->
+    <div class="tab-content" id="tab-manage">
+      <div class="upload-section">
+        <div class="section-heading" style="display:flex;justify-content:space-between;align-items:center;">
+          <span>All Texts in Archive</span>
+          <button class="btn-primary" onclick="loadManage()" style="padding:8px 20px;font-size:0.7rem;">Refresh</button>
+        </div>
+        <div id="manageContent">
+          <p style="color:var(--muted);font-style:italic;">Click Refresh to load current archive contents.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETUP GUIDE TAB -->
+    <div class="tab-content" id="tab-guide">
+      <div class="guide-block">
+        <h3>⚙️ One-Time GitHub Setup (PowerShell 7)</h3>
+        <ol>
+          <li>Install <strong>Git</strong> and <strong>GitHub CLI</strong> (<code>winget install GitHub.cli</code>)</li>
+          <li>Create a new public repository named <code>nath-archives</code> on GitHub</li>
+          <li>Clone this project and push it to your repo</li>
+          <li>Enable GitHub Pages: Settings → Pages → Source: <strong>main branch / root</strong></li>
+          <li>Your archive will be live at: <code>https://YOUR-USERNAME.github.io/nath-archives/</code></li>
+        </ol>
+      </div>
+
+      <div class="guide-block">
+        <h3>🚀 Initial Deploy — PowerShell 7 Script</h3>
+        <p style="color:var(--muted);font-size:0.85rem;margin-bottom:8px;">Run this in PowerShell 7 after downloading the archive files:</p>
+        <div class="copy-code">
+# Run in PowerShell 7
+# -----------------------------------------------
+# 1. Set your GitHub username
+$USERNAME = "your-github-username"
+$REPO     = "nath-archives"
+
+# 2. Init and push
+git init
+git add .
+git commit -m "Initial commit: Nath Digital Archives"
+git branch -M main
+git remote add origin "https://github.com/$USERNAME/$REPO.git"
+git push -u origin main
+
+# 3. Enable GitHub Pages via GitHub CLI
+gh auth login
+gh api repos/$USERNAME/$REPO/pages --method POST `
+  --field source='{"branch":"main","path":"/"}' `
+  --silent
+
+Write-Host "✓ Archive deployed! Visit: https://$USERNAME.github.io/$REPO/" -ForegroundColor Green
+        </div>
+      </div>
+
+      <div class="guide-block">
+        <h3>🔑 Generate GitHub Token for Uploads</h3>
+        <ol>
+          <li>Go to <a href="https://github.com/settings/tokens/new" target="_blank" style="color:var(--saffron);">github.com/settings/tokens/new</a></li>
+          <li>Note: <code>nath-archives-admin</code></li>
+          <li>Expiration: 90 days (renew as needed)</li>
+          <li>Scope: check <strong>repo</strong> (full control)</li>
+          <li>Click <strong>Generate token</strong> — copy and save it</li>
+          <li>Paste this token in the Upload tab before uploading files</li>
+        </ol>
+      </div>
+
+      <div class="guide-block">
+        <h3>🔐 Change Admin Password</h3>
+        <p style="color:var(--muted);font-size:0.85rem;margin-bottom:8px;">Edit <code>admin/index.html</code> and find the <code>ADMIN_CREDENTIALS</code> section near the top of the script:</p>
+        <div class="copy-code">
+// Find this in admin/index.html and change:
+const ADMIN_USER = 'keeper';      // ← change username
+const ADMIN_PASS = 'gorakh108';   // ← change password
+        </div>
+        <p style="color:var(--muted);font-size:0.85rem;margin-top:8px;">⚠️ Note: Since this is a static site, credentials are in the HTML. For stronger security, keep the admin page private or use a private GitHub repo with Pages.</p>
+      </div>
+
+      <div class="guide-block">
+        <h3>📁 Folder Structure</h3>
+        <div class="copy-code">
+nath-archives/
+├── index.html          ← Public reader portal
+├── admin/
+│   └── index.html      ← Admin panel (this page)
+├── books/              ← Uploaded PDFs and eBooks
+├── covers/             ← Book cover images
+├── data/
+│   └── books.json      ← Book catalog (auto-updated)
+└── assets/             ← CSS/JS assets
+        </div>
+      </div>
+
+      <div class="guide-block">
+        <h3>📤 Bulk Upload — PowerShell 7</h3>
+        <p style="color:var(--muted);font-size:0.85rem;margin-bottom:8px;">To batch-upload many PDFs at once:</p>
+        <div class="copy-code">
+# Bulk upload all PDFs from a folder
+$TOKEN  = "ghp_your_token_here"
+$REPO   = "your-username/nath-archives"
+$FOLDER = "C:\NathBooks"
+
+Get-ChildItem "$FOLDER\*.pdf" | ForEach-Object {
+    $file    = $_.FullName
+    $name    = $_.Name
+    $b64     = [Convert]::ToBase64String([IO.File]::ReadAllBytes($file))
+    $body    = @{
+        message = "Add book: $name"
+        content = $b64
+    } | ConvertTo-Json
+
+    Invoke-RestMethod `
+        -Uri "https://api.github.com/repos/$REPO/contents/books/$name" `
+        -Method PUT `
+        -Headers @{
+            Authorization = "token $TOKEN"
+            "Content-Type" = "application/json"
+        } `
+        -Body $body
+
+    Write-Host "✓ Uploaded: $name" -ForegroundColor Green
+}
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ============================================================
+// CREDENTIALS — Change these before deploying!
+// ============================================================
+const ADMIN_USER = 'keeper';
+const ADMIN_PASS = 'gorakh108';
+
+// ============================================================
+// AUTH
+// ============================================================
+function doLogin() {
+  const u = document.getElementById('loginUser').value.trim();
+  const p = document.getElementById('loginPass').value.trim();
+  if (u === ADMIN_USER && p === ADMIN_PASS) {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('adminPanel').style.display = 'block';
+    loadStats();
+    // Restore saved settings
+    const saved = JSON.parse(localStorage.getItem('nath_admin') || '{}');
+    if (saved.token) document.getElementById('ghToken').value = saved.token;
+    if (saved.repo)  document.getElementById('ghRepo').value  = saved.repo;
+  } else {
+    const el = document.getElementById('loginError');
+    el.style.display = 'block';
+    setTimeout(() => el.style.display = 'none', 3000);
+  }
+}
+
+function doLogout() {
+  document.getElementById('adminPanel').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('loginUser').value = '';
+  document.getElementById('loginPass').value = '';
+}
+
+// ============================================================
+// TABS
+// ============================================================
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.admin-nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  btn.classList.add('active');
+  if (name === 'manage') loadManage();
+}
+
+// ============================================================
+// DRAG & DROP
+// ============================================================
+let selectedFile = null;
+
+const dz = document.getElementById('dropZone');
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragover'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('dragover'));
+dz.addEventListener('drop', e => {
+  e.preventDefault();
+  dz.classList.remove('dragover');
+  if (e.dataTransfer.files[0]) handleFileSelect(e.dataTransfer.files[0]);
+});
+
+function handleFileSelect(file) {
+  if (!file) return;
+  if (file.size > 25 * 1024 * 1024) {
+    alert('File too large. Maximum 25MB per file.');
+    return;
+  }
+  selectedFile = file;
+  const el = document.getElementById('selectedFile');
+  el.style.display = 'block';
+  el.textContent = `📄 Selected: ${file.name} (${(file.size/1024/1024).toFixed(2)} MB)`;
+  // Auto-fill title if empty
+  if (!document.getElementById('bookTitle').value) {
+    document.getElementById('bookTitle').value = file.name.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' ');
+  }
+}
+
+// ============================================================
+// GITHUB UPLOAD
+// ============================================================
+async function fileToBase64(file) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res(r.result.split(',')[1]);
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+}
+
+function saveAdminSettings() {
+  localStorage.setItem('nath_admin', JSON.stringify({
+    token: document.getElementById('ghToken').value,
+    repo:  document.getElementById('ghRepo').value
+  }));
+}
+
+async function githubUpload(token, repo, path, content, message) {
+  // Check if file exists (to get SHA for update)
+  let sha = null;
+  try {
+    const check = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
+      headers: { Authorization: `token ${token}`, Accept: 'application/vnd.github.v3+json' }
+    });
+    if (check.ok) {
+      const data = await check.json();
+      sha = data.sha;
+    }
+  } catch {}
+
+  const body = { message, content };
+  if (sha) body.sha = sha;
+
+  const res = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
+    method: 'PUT',
+    headers: {
+      Authorization: `token ${token}`,
+      'Content-Type': 'application/json',
+      Accept: 'application/vnd.github.v3+json'
+    },
+    body: JSON.stringify(body)
+  });
+
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.message || 'GitHub API error');
+  }
+  return res.json();
+}
+
+function setStatus(type, msg) {
+  const el = document.getElementById('uploadStatus');
+  el.className = 'status-msg ' + type;
+  el.textContent = msg;
+}
+
+function setProgress(pct) {
+  const wrap = document.getElementById('progressWrap');
+  const bar  = document.getElementById('progressBar');
+  wrap.style.display = pct > 0 ? 'block' : 'none';
+  bar.style.width = pct + '%';
+}
+
+async function uploadBook() {
+  const token = document.getElementById('ghToken').value.trim();
+  const repo  = document.getElementById('ghRepo').value.trim();
+  const title = document.getElementById('bookTitle').value.trim();
+
+  if (!token || !repo || !title) {
+    setStatus('error', 'Please fill in Token, Repository, and Title.');
+    return;
+  }
+  if (!selectedFile) {
+    setStatus('error', 'Please select a file to upload.');
+    return;
+  }
+
+  saveAdminSettings();
+  document.getElementById('uploadBtn').disabled = true;
+  setStatus('loading', 'Uploading to GitHub…');
+  setProgress(10);
+
+  try {
+    // 1. Upload main file
+    const fileB64 = await fileToBase64(selectedFile);
+    const safeFilename = selectedFile.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+    const filePath = `books/${safeFilename}`;
+    setProgress(30);
+
+    await githubUpload(token, repo, filePath, fileB64, `Add: ${title}`);
+    setProgress(55);
+
+    // 2. Upload cover if provided
+    let coverPath = null;
+    const coverInput = document.getElementById('coverInput');
+    if (coverInput.files[0]) {
+      const coverB64 = await fileToBase64(coverInput.files[0]);
+      const coverName = 'cover_' + safeFilename.replace(/\.[^.]+$/, '') + '.jpg';
+      coverPath = `covers/${coverName}`;
+      await githubUpload(token, repo, coverPath, coverB64, `Cover: ${title}`);
+    }
+    setProgress(70);
+
+    // 3. Update books.json
+    const newBook = {
+      id: safeFilename.replace(/\.[^.]+$/, ''),
+      title,
+      author:     document.getElementById('bookAuthor').value.trim() || 'Traditional',
+      category:   document.getElementById('bookCategory').value,
+      language:   document.getElementById('bookLang').value.trim(),
+      description:document.getElementById('bookDesc').value.trim(),
+      coverColor: document.getElementById('bookColor').value,
+      coverImage: coverPath ? coverPath : null,
+      file:       filePath,
+      type:       selectedFile.name.endsWith('.pdf') ? 'PDF' : selectedFile.name.match(/\.(jpg|jpeg|png|gif)$/) ? 'IMAGE' : 'EBOOK',
+      featured:   document.getElementById('bookFeatured').value === 'true',
+      addedDate:  new Date().toISOString().split('T')[0]
+    };
+
+    // Load existing books
+    let books = [];
+    try {
+      const booksRes = await fetch(`https://api.github.com/repos/${repo}/contents/data/books.json`, {
+        headers: { Authorization: `token ${token}` }
+      });
+      if (booksRes.ok) {
+        const booksData = await booksRes.json();
+        books = JSON.parse(atob(booksData.content.replace(/\n/g, '')));
+      }
+    } catch {}
+
+    // Replace if same id, else append
+    const idx = books.findIndex(b => b.id === newBook.id);
+    if (idx >= 0) books[idx] = newBook;
+    else books.push(newBook);
+
+    const booksB64 = btoa(unescape(encodeURIComponent(JSON.stringify(books, null, 2))));
+    await githubUpload(token, repo, 'data/books.json', booksB64, `Update catalog: ${title}`);
+    setProgress(100);
+
+    setStatus('success', `✓ "${title}" uploaded successfully! It may take 1–2 minutes to appear on the site.`);
+
+    // Reset form
+    selectedFile = null;
+    document.getElementById('selectedFile').style.display = 'none';
+    document.getElementById('bookTitle').value = '';
+    document.getElementById('bookAuthor').value = '';
+    document.getElementById('bookDesc').value = '';
+    document.getElementById('fileInput').value = '';
+    document.getElementById('coverInput').value = '';
+    loadStats();
+
+  } catch (err) {
+    setStatus('error', `Upload failed: ${err.message}`);
+  } finally {
+    document.getElementById('uploadBtn').disabled = false;
+    setTimeout(() => setProgress(0), 2000);
+  }
+}
+
+// ============================================================
+// MANAGE — List + Delete
+// ============================================================
+async function loadManage() {
+  const token = document.getElementById('ghToken').value.trim();
+  const repo  = document.getElementById('ghRepo').value.trim();
+  const container = document.getElementById('manageContent');
+
+  if (!token || !repo) {
+    container.innerHTML = `<p style="color:var(--muted);font-style:italic;">Enter your GitHub Token and Repo in the Upload tab first.</p>`;
+    return;
+  }
+
+  container.innerHTML = `<div style="color:var(--muted);font-style:italic;padding:20px;">Loading…</div>`;
+
+  try {
+    const res = await fetch(`https://api.github.com/repos/${repo}/contents/data/books.json`, {
+      headers: { Authorization: `token ${token}` }
+    });
+    if (!res.ok) throw new Error('books.json not found');
+    const data = await res.json();
+    const books = JSON.parse(atob(data.content.replace(/\n/g, '')));
+
+    if (!books.length) {
+      container.innerHTML = `<p style="color:var(--muted);font-style:italic;padding:20px;">No texts in archive yet. Upload your first text!</p>`;
+      return;
+    }
+
+    container.innerHTML = `
+      <table class="books-table">
+        <thead><tr>
+          <th>Title</th>
+          <th>Author</th>
+          <th>Category</th>
+          <th>Type</th>
+          <th>Featured</th>
+          <th>Added</th>
+          <th>Actions</th>
+        </tr></thead>
+        <tbody>
+          ${books.map(b => `
+            <tr>
+              <td><strong>${b.title}</strong></td>
+              <td style="color:var(--muted)">${b.author || '—'}</td>
+              <td>${b.category || '—'}</td>
+              <td><span class="badge badge-ok">${b.type || 'PDF'}</span></td>
+              <td>${b.featured ? '<span class="badge badge-ok">Yes</span>' : '<span class="badge badge-na">No</span>'}</td>
+              <td style="color:var(--muted);font-size:0.8rem">${b.addedDate || '—'}</td>
+              <td><button class="btn-danger" onclick="deleteBook('${b.id}', '${b.title.replace(/'/g,"\\'")}')">Remove</button></td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
+
+  } catch (err) {
+    container.innerHTML = `<p style="color:var(--red);font-style:italic;">Error: ${err.message}</p>`;
+  }
+}
+
+async function deleteBook(id, title) {
+  if (!confirm(`Remove "${title}" from the archive?\n\nThis removes it from the catalog (the file stays in the repo).`)) return;
+  const token = document.getElementById('ghToken').value.trim();
+  const repo  = document.getElementById('ghRepo').value.trim();
+
+  try {
+    const res = await fetch(`https://api.github.com/repos/${repo}/contents/data/books.json`, {
+      headers: { Authorization: `token ${token}` }
+    });
+    const data = await res.json();
+    let books = JSON.parse(atob(data.content.replace(/\n/g, '')));
+    books = books.filter(b => b.id !== id);
+    const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(books, null, 2))));
+    await githubUpload(token, repo, 'data/books.json', b64, `Remove: ${title}`);
+    alert(`"${title}" removed from catalog.`);
+    loadManage();
+    loadStats();
+  } catch (err) {
+    alert('Error: ' + err.message);
+  }
+}
+
+// ============================================================
+// STATS
+// ============================================================
+async function loadStats() {
+  const token = document.getElementById('ghToken').value.trim();
+  const repo  = document.getElementById('ghRepo').value.trim();
+  if (!token || !repo) return;
+
+  try {
+    const res = await fetch(`https://api.github.com/repos/${repo}/contents/data/books.json`, {
+      headers: { Authorization: `token ${token}` }
+    });
+    if (!res.ok) return;
+    const data = await res.json();
+    const books = JSON.parse(atob(data.content.replace(/\n/g, '')));
+    document.getElementById('statTotal').textContent    = books.length;
+    document.getElementById('statPDF').textContent      = books.filter(b => b.type === 'PDF').length;
+    document.getElementById('statCats').textContent     = new Set(books.map(b => b.category)).size;
+    document.getElementById('statFeatured').textContent = books.filter(b => b.featured).length;
+  } catch {}
+}
+</script>
+</body>
+</html>
