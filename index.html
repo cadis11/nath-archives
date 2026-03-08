@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Nath Digital Archives — The Sacred Repository</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Cinzel:wght@400;600;700&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --saffron: #E8820C;
+      --deep-saffron: #C4600A;
+      --gold: #D4A017;
+      --gold-light: #F0C040;
+      --ash: #F5F0E8;
+      --dark: #0D0804;
+      --dark2: #1A0E04;
+      --mid: #5C3D1A;
+      --muted: #8B6845;
+      --ember: #FF4500;
+      --flame1: #FF6B00;
+      --flame2: #FF9A00;
+      --smoke: rgba(180,140,100,0.06);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      background: var(--dark);
+      color: var(--ash);
+      font-family: 'Cormorant Garamond', serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* =====================================================
+       FIRE CANVAS BACKGROUND
+    ===================================================== */
+    #fireCanvas {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.55;
+    }
+
+    /* Dark overlay so text stays readable */
+    .fire-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      background:
+        linear-gradient(to bottom,
+          rgba(13,8,4,0.92) 0%,
+          rgba(13,8,4,0.75) 40%,
+          rgba(13,8,4,0.55) 70%,
+          rgba(13,8,4,0.82) 100%
+        );
+    }
+
+    /* Subtle floating embers */
+    .ember {
+      position: fixed;
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: var(--gold-light);
+      box-shadow: 0 0 6px 2px rgba(255,160,0,0.7);
+      pointer-events: none;
+      z-index: 2;
+      animation: floatEmber linear infinite;
+    }
+
+    @keyframes floatEmber {
+      0%   { transform: translateY(0) translateX(0) scale(1); opacity: 1; }
+      60%  { opacity: 0.8; }
+      100% { transform: translateY(-100vh) translateX(var(--dx)) scale(0.2); opacity: 0; }
+    }
+
+    /* =====================================================
+       LAYOUT
+    ===================================================== */
+    header, main, footer, .section, .hero {
+      position: relative;
+      z-index: 10;
+    }
+
+    /* =====================================================
+       HEADER
+    ===================================================== */
+    header {
+      text-align: center;
+      padding: 56px 20px 36px;
+      border-bottom: 1px solid rgba(232,130,12,0.35);
+      background: linear-gradient(to bottom, rgba(13,8,4,0.6), transparent);
+    }
+
+    .om-symbol {
+      font-size: 3.2rem;
+      color: var(--gold-light);
+      display: block;
+      margin-bottom: 6px;
+      animation: breathe 4s ease-in-out infinite;
+      text-shadow:
+        0 0 20px rgba(255,150,0,0.9),
+        0 0 50px rgba(255,100,0,0.5),
+        0 0 80px rgba(255,60,0,0.3);
+      filter: drop-shadow(0 0 12px rgba(255,140,0,0.8));
+    }
+
+    @keyframes breathe {
+      0%, 100% { transform: scale(1);    filter: drop-shadow(0 0 10px rgba(255,140,0,0.7)); }
+      50%       { transform: scale(1.06); filter: drop-shadow(0 0 22px rgba(255,180,0,1)); }
+    }
+
+    .site-title {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(1.8rem, 5vw, 3.4rem);
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      color: var(--gold-light);
+      text-shadow:
+        0 0 30px rgba(255,160,0,0.6),
+        0 2px 4px rgba(0,0,0,0.8);
+      line-height: 1.1;
+    }
+
+    .site-subtitle {
+      font-family: 'IM Fell English', serif;
+      font-style: italic;
+      color: rgba(245,224,180,0.7);
+      font-size: 1.1rem;
+      margin-top: 8px;
+      letter-spacing: 0.05em;
+    }
+
+    .gorakh-line {
+      display: inline-block;
+      margin-top: 14px;
+      padding: 6px 24px;
+      border: 1px solid rgba(232,130,12,0.5);
+      border-radius: 2px;
+      font-family: 'Cinzel', serif;
+      font-size: 0.75rem;
+      letter-spacing: 0.25em;
+      color: var(--saffron);
+      text-transform: uppercase;
+      background: rgba(13,8,4,0.5);
+    }
+
+    nav {
+      margin-top: 22px;
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      flex-wrap: wrap;
+    }
+
+    nav a {
+      font-family: 'Cinzel', serif;
+      font-size: 0.8rem;
+      letter-spacing: 0.2em;
+      color: var(--muted);
+      text-decoration: none;
+      text-transform: uppercase;
+      transition: all 0.3s;
+      padding-bottom: 4px;
+      border-bottom: 1px solid transparent;
+    }
+
+    nav a:hover, nav a.active {
+      color: var(--gold-light);
+      border-bottom-color: var(--saffron);
+      text-shadow: 0 0 12px rgba(255,160,0,0.5);
+    }
+
+    /* =====================================================
+       HERO
+    ===================================================== */
+    .hero {
+      text-align: center;
+      padding: 64px 20px 44px;
+      max-width: 780px;
+      margin: 0 auto;
+    }
+
+    .hero h2 {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(1.2rem, 3vw, 1.8rem);
+      color: var(--gold);
+      margin-bottom: 20px;
+      letter-spacing: 0.08em;
+      text-shadow: 0 0 20px rgba(255,150,0,0.4);
+    }
+
+    .hero p {
+      font-family: 'IM Fell English', serif;
+      font-size: 1.15rem;
+      line-height: 1.95;
+      color: rgba(245,230,200,0.78);
+      font-style: italic;
+    }
+
+    .divider {
+      text-align: center;
+      padding: 16px 0;
+      color: var(--saffron);
+      font-size: 1.4rem;
+      letter-spacing: 0.5em;
+      opacity: 0.5;
+    }
+
+    /* =====================================================
+       SECTIONS
+    ===================================================== */
+    .section {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 36px 24px;
+    }
+
+    .section-title {
+      font-family: 'Cinzel', serif;
+      font-size: 1.05rem;
+      letter-spacing: 0.25em;
+      color: var(--saffron);
+      text-transform: uppercase;
+      margin-bottom: 28px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      text-shadow: 0 0 16px rgba(255,120,0,0.4);
+    }
+
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, rgba(232,130,12,0.5), transparent);
+    }
+
+    /* =====================================================
+       BOOK GRID
+    ===================================================== */
+    .books-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 22px;
+    }
+
+    .book-card {
+      background: rgba(26,14,4,0.75);
+      border: 1px solid rgba(232,130,12,0.22);
+      border-radius: 4px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.35s ease;
+      position: relative;
+      backdrop-filter: blur(4px);
+    }
+
+    .book-card:hover {
+      border-color: rgba(255,150,0,0.7);
+      transform: translateY(-5px);
+      box-shadow:
+        0 14px 40px rgba(232,100,0,0.25),
+        0 0 20px rgba(255,120,0,0.1);
+    }
+
+    .book-cover {
+      width: 100%;
+      aspect-ratio: 3/4;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .book-cover::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 30% 30%, rgba(232,130,12,0.12), transparent 65%);
+    }
+
+    .book-cover-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      position: absolute;
+      inset: 0;
+    }
+
+    .book-cover-icon {
+      font-size: 2.4rem;
+      margin-bottom: 10px;
+      position: relative;
+      z-index: 1;
+      filter: drop-shadow(0 0 8px rgba(255,140,0,0.6));
+    }
+
+    .book-cover-title {
+      font-family: 'Cinzel', serif;
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+      text-align: center;
+      color: var(--gold-light);
+      position: relative;
+      z-index: 1;
+      line-height: 1.4;
+    }
+
+    .book-info {
+      padding: 13px;
+    }
+
+    .book-name {
+      font-family: 'Cinzel', serif;
+      font-size: 0.78rem;
+      color: var(--ash);
+      margin-bottom: 4px;
+      line-height: 1.4;
+    }
+
+    .book-meta {
+      font-size: 0.73rem;
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    .book-type-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(232,100,12,0.85);
+      color: white;
+      font-family: 'Cinzel', serif;
+      font-size: 0.52rem;
+      letter-spacing: 0.15em;
+      padding: 3px 8px;
+      text-transform: uppercase;
+      border-radius: 2px;
+    }
+
+    .read-btn {
+      display: block;
+      width: calc(100% - 26px);
+      margin: 0 13px 13px;
+      padding: 8px;
+      background: transparent;
+      border: 1px solid var(--saffron);
+      color: var(--saffron);
+      font-family: 'Cinzel', serif;
+      font-size: 0.68rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.3s;
+      border-radius: 2px;
+    }
+
+    .read-btn:hover {
+      background: var(--saffron);
+      color: var(--dark);
+      box-shadow: 0 0 16px rgba(232,130,12,0.5);
+    }
+
+    /* =====================================================
+       INFO CARDS
+    ===================================================== */
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 18px;
+    }
+
+    .info-card {
+      background: rgba(26,14,4,0.65);
+      border: 1px solid rgba(232,130,12,0.2);
+      padding: 26px 22px;
+      border-radius: 4px;
+      backdrop-filter: blur(4px);
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    .info-card:hover {
+      border-color: rgba(232,130,12,0.45);
+      box-shadow: 0 6px 24px rgba(232,100,0,0.1);
+    }
+
+    .info-card h3 {
+      font-family: 'Cinzel', serif;
+      font-size: 0.95rem;
+      color: var(--gold);
+      margin-bottom: 10px;
+      text-shadow: 0 0 12px rgba(255,150,0,0.3);
+    }
+
+    .info-card p {
+      font-family: 'IM Fell English', serif;
+      font-style: italic;
+      font-size: 0.93rem;
+      line-height: 1.75;
+      color: rgba(245,230,200,0.65);
+    }
+
+    /* =====================================================
+       SEARCH & FILTERS
+    ===================================================== */
+    .search-bar {
+      display: flex;
+      max-width: 500px;
+      margin: 0 auto 36px;
+    }
+
+    .search-input {
+      flex: 1;
+      padding: 12px 18px;
+      background: rgba(26,14,4,0.85);
+      border: 1px solid rgba(232,130,12,0.3);
+      border-right: none;
+      color: var(--ash);
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+
+    .search-input:focus { border-color: var(--saffron); }
+    .search-input::placeholder { color: var(--muted); }
+
+    .search-btn {
+      padding: 12px 18px;
+      background: var(--saffron);
+      border: 1px solid var(--saffron);
+      color: var(--dark);
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    .category-tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 28px;
+    }
+
+    .tab-btn {
+      padding: 6px 16px;
+      background: transparent;
+      border: 1px solid rgba(232,130,12,0.28);
+      color: var(--muted);
+      font-family: 'Cinzel', serif;
+      font-size: 0.68rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.3s;
+      border-radius: 2px;
+    }
+
+    .tab-btn:hover, .tab-btn.active {
+      background: rgba(232,130,12,0.14);
+      border-color: var(--saffron);
+      color: var(--gold-light);
+    }
+
+    /* =====================================================
+       EMPTY STATE / LOADING
+    ===================================================== */
+    .empty-state {
+      text-align: center;
+      padding: 55px 20px;
+      color: var(--muted);
+    }
+
+    .empty-state .big-icon { font-size: 3.5rem; margin-bottom: 14px; opacity: 0.4; }
+    .empty-state p { font-family: 'IM Fell English', serif; font-style: italic; font-size: 1.05rem; }
+
+    .loading { text-align: center; padding: 70px 20px; }
+    .loading-spinner {
+      width: 38px; height: 38px;
+      border: 2px solid rgba(232,130,12,0.2);
+      border-top-color: var(--saffron);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 14px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* =====================================================
+       FOOTER
+    ===================================================== */
+    footer {
+      position: relative;
+      z-index: 10;
+      text-align: center;
+      padding: 44px 20px 32px;
+      border-top: 1px solid rgba(232,130,12,0.25);
+      margin-top: 50px;
+      background: linear-gradient(to top, rgba(13,8,4,0.8), transparent);
+    }
+
+    .footer-om {
+      font-size: 2.2rem;
+      color: var(--saffron);
+      margin-bottom: 10px;
+      text-shadow: 0 0 20px rgba(255,120,0,0.7);
+      animation: breathe 4s ease-in-out infinite;
+    }
+
+    .footer-main {
+      font-family: 'Cormorant Garamond', serif;
+      color: rgba(245,230,200,0.55);
+      font-size: 0.9rem;
+      line-height: 1.8;
+    }
+
+    /* OM ADESH — the sacred greeting, always at the very bottom */
+    .om-adesh {
+      display: inline-block;
+      margin-top: 18px;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.6rem;
+      font-weight: 600;
+      color: var(--gold-light);
+      letter-spacing: 0.12em;
+      text-shadow:
+        0 0 20px rgba(255,160,0,0.8),
+        0 0 40px rgba(255,100,0,0.4);
+      animation: adeshGlow 3s ease-in-out infinite;
+    }
+
+    @keyframes adeshGlow {
+      0%, 100% { text-shadow: 0 0 16px rgba(255,160,0,0.7), 0 0 32px rgba(255,80,0,0.3); }
+      50%       { text-shadow: 0 0 28px rgba(255,200,0,1),   0 0 55px rgba(255,100,0,0.6); }
+    }
+
+    .footer-alakh {
+      font-family: 'IM Fell English', serif;
+      font-style: italic;
+      color: rgba(139,104,69,0.7);
+      font-size: 0.88rem;
+      margin-top: 6px;
+      letter-spacing: 0.08em;
+    }
+
+    /* =====================================================
+       PDF MODAL
+    ===================================================== */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(8,4,1,0.97);
+      z-index: 1000;
+      flex-direction: column;
+    }
+
+    .modal-overlay.open { display: flex; }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 22px;
+      background: var(--dark2);
+      border-bottom: 1px solid rgba(232,130,12,0.35);
+      flex-shrink: 0;
+    }
+
+    .modal-title {
+      font-family: 'Cinzel', serif;
+      font-size: 0.95rem;
+      color: var(--gold-light);
+      letter-spacing: 0.1em;
+    }
+
+    .modal-close {
+      background: none;
+      border: 1px solid rgba(232,130,12,0.4);
+      color: var(--saffron);
+      font-size: 1.1rem;
+      width: 34px; height: 34px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 2px;
+      transition: all 0.3s;
+    }
+
+    .modal-close:hover { background: var(--saffron); color: var(--dark); }
+
+    .pdf-container {
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .pdf-container iframe { width: 100%; height: 100%; border: none; }
+  </style>
+</head>
+<body>
+
+<!-- FIRE CANVAS -->
+<canvas id="fireCanvas"></canvas>
+<div class="fire-overlay"></div>
+
+<!-- FLOATING EMBERS (created by JS) -->
+
+<header>
+  <span class="om-symbol">ॐ</span>
+  <h1 class="site-title">Nath Digital Archives</h1>
+  <p class="site-subtitle">Sacred Texts & Teachings of the Nath Sampradaya</p>
+  <span class="gorakh-line">Rooted in Gorakhnath · Preserved for Seekers</span>
+  <nav>
+    <a href="#" class="active" onclick="showSection('home', this); return false;">Home</a>
+    <a href="#" onclick="showSection('library', this); return false;">Library</a>
+    <a href="#" onclick="showSection('about', this); return false;">About Naths</a>
+    <a href="admin/index.html">Admin</a>
+  </nav>
+</header>
+
+<!-- ═══ HOME ═══ -->
+<div id="section-home">
+  <div class="hero">
+    <h2>The Path of the Naths</h2>
+    <p>
+      Welcome to the sacred repository of the Nath tradition — a living lineage tracing its origin
+      to the immortal Mahayogi <strong>Gorakhnath</strong>, disciple of Matsyendranath.
+      Here you will find scriptures, teachings, and sacred knowledge preserved for all who seek
+      the path of liberation.
+    </p>
+  </div>
+
+  <div class="divider">✦ ✦ ✦</div>
+
+  <div class="section">
+    <div class="section-title">Featured Texts</div>
+    <div id="featured-books" class="books-grid">
+      <div class="loading">
+        <div class="loading-spinner"></div>
+        <p style="color:var(--muted);font-style:italic;">Loading sacred texts…</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">About This Archive</div>
+    <div class="info-grid">
+      <div class="info-card">
+        <h3>🔥 Gorakhnath</h3>
+        <p>The immortal Mahayogi who established the Nath Sampradaya. His teachings on Hatha Yoga, Kundalini, and liberation form the bedrock of this tradition.</p>
+      </div>
+      <div class="info-card">
+        <h3>📜 Sacred Texts</h3>
+        <p>Explore original Sanskrit manuscripts, vernacular devotional poetry, tantric treatises, and modern commentaries on Nath philosophy.</p>
+      </div>
+      <div class="info-card">
+        <h3>🔐 Read-Only Access</h3>
+        <p>All texts are available for reading online. Texts may only be read — not downloaded — preserving the sanctity of this living library.</p>
+      </div>
+      <div class="info-card">
+        <h3>🌐 Open to All Seekers</h3>
+        <p>The wisdom of the Naths belongs to all. No account required. Simply open any text and begin your journey on the path.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ LIBRARY ═══ -->
+<div id="section-library" style="display:none;">
+  <div class="section">
+    <div class="section-title">The Sacred Library</div>
+    <div class="search-bar">
+      <input type="text" class="search-input" id="search-input" placeholder="Search texts, authors, topics…" oninput="filterBooks()">
+      <button class="search-btn">⌕</button>
+    </div>
+    <div class="category-tabs" id="category-tabs">
+      <button class="tab-btn active" onclick="filterByCategory('all', this)">All Texts</button>
+    </div>
+    <div id="library-books" class="books-grid">
+      <div class="loading">
+        <div class="loading-spinner"></div>
+        <p style="color:var(--muted);font-style:italic;">Loading library…</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ABOUT ═══ -->
+<div id="section-about" style="display:none;">
+  <div class="hero">
+    <h2>The Nath Tradition</h2>
+    <p>
+      The Nath Sampradaya is one of the oldest and most profound spiritual lineages of India.
+      Founded in the mystical teachings of <em>Adi Nath</em> (Shiva himself), carried through
+      Matsyendranath and perfected by the immortal <em>Gorakhnath</em>, this tradition encompasses
+      Hatha Yoga, Kundalini Shakti, and the path of the Siddhas.
+    </p>
+  </div>
+  <div class="section">
+    <div class="info-grid">
+      <div class="info-card">
+        <h3>Adi Nath — Lord Shiva</h3>
+        <p>The primordial Guru of the Nath lineage. Shiva as Adi Nath transmitted the yogic sciences to Matsyendranath in the depths of the ocean.</p>
+      </div>
+      <div class="info-card">
+        <h3>Matsyendranath</h3>
+        <p>The great Siddha who received Shiva's teachings and transmitted them to Gorakhnath. Revered as one of the Nine Naths and the founding Guru of Hatha Yoga.</p>
+      </div>
+      <div class="info-card">
+        <h3>Gorakhnath</h3>
+        <p>The immortal Mahayogi who systematized the Nath tradition. Author of numerous yogic texts, he is worshipped as a deity across Nepal, India, and beyond.</p>
+      </div>
+      <div class="info-card">
+        <h3>The Nine Naths</h3>
+        <p>Navnath — the nine great Siddhas: Macchindranath, Gorakshanath, Jalandharnath, Kanifnath, Gahininath, Bhartrinath, Revananath, Charpatinath, Naganath.</p>
+      </div>
+      <div class="info-card">
+        <h3>84 Siddhas</h3>
+        <p>The Chaurasi Siddhas — 84 great accomplished masters of the Nath-Tantric tradition who achieved liberation through deep yogic practice.</p>
+      </div>
+      <div class="info-card">
+        <h3>Living Tradition</h3>
+        <p>The Nath tradition continues today through Gorakhpur's Gorakhnath temple, the Kanphata Yogis, and countless practitioners across South Asia.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ FOOTER — appears on every section ═══ -->
+<footer>
+  <div class="footer-om">ॐ</div>
+  <div class="footer-main">
+    Nath Digital Archives — Preserving the Sacred Knowledge of the Nath Sampradaya
+  </div>
+  <div class="footer-alakh">"Alakh Niranjan" — The Imperceptible, the Pure</div>
+  <div><span class="om-adesh">ॐ आदेश !</span></div>
+</footer>
+
+<!-- PDF VIEWER MODAL -->
+<div class="modal-overlay" id="pdfModal">
+  <div class="modal-header">
+    <span class="modal-title" id="modalTitle">Reading…</span>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <span style="font-size:0.68rem;color:var(--muted);font-family:'Cinzel',serif;letter-spacing:0.1em;">READ ONLY · NO DOWNLOAD</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+  </div>
+  <div class="pdf-container" id="pdfContainer"></div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+// FIRE CANVAS — animated dhuni fire background
+// ═══════════════════════════════════════════════════
+(function() {
+  const canvas = document.getElementById('fireCanvas');
+  const ctx    = canvas.getContext('2d');
+
+  function resize() {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  // Particle system
+  const PARTICLE_COUNT = 120;
+  const particles = [];
+
+  function rand(min, max) { return Math.random() * (max - min) + min; }
+
+  class FireParticle {
+    constructor() { this.reset(true); }
+
+    reset(initial) {
+      this.x    = rand(0, canvas.width);
+      this.y    = initial ? rand(canvas.height * 0.3, canvas.height) : canvas.height + 10;
+      this.size = rand(4, 28);
+      this.speedY = rand(0.6, 2.2);
+      this.speedX = rand(-0.5, 0.5);
+      this.life   = 0;
+      this.maxLife = rand(80, 200);
+      // Colour stops: ember-red → orange → gold → near-white tip
+      this.hue    = rand(10, 40);   // degrees in hsl
+    }
+
+    update() {
+      this.y    -= this.speedY;
+      this.x    += this.speedX + Math.sin(this.life * 0.06) * 0.4;
+      this.life++;
+      this.size *= 0.992;
+      if (this.life > this.maxLife || this.size < 0.5) this.reset(false);
+    }
+
+    draw() {
+      const progress = this.life / this.maxLife;
+      // Fade in quickly, fade out slowly
+      const alpha = progress < 0.1
+        ? progress * 10
+        : 1 - Math.pow(progress, 1.4);
+
+      // Colour: start deep red-orange, lighten and become more yellow/white toward tip
+      const hue  = this.hue + progress * 30;
+      const sat  = 100 - progress * 20;
+      const lum  = 40  + progress * 45;
+
+      const gradient = ctx.createRadialGradient(
+        this.x, this.y, 0,
+        this.x, this.y, this.size
+      );
+      gradient.addColorStop(0,   `hsla(${hue}, ${sat}%, ${lum + 20}%, ${alpha})`);
+      gradient.addColorStop(0.4, `hsla(${hue}, ${sat}%, ${lum}%, ${alpha * 0.8})`);
+      gradient.addColorStop(1,   `hsla(${hue}, ${sat}%, ${lum - 10}%, 0)`);
+
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+      ctx.fillStyle = gradient;
+      ctx.fill();
+    }
+  }
+
+  for (let i = 0; i < PARTICLE_COUNT; i++) {
+    particles.push(new FireParticle());
+  }
+
+  function loop() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Subtle glowing base at bottom
+    const baseGrad = ctx.createLinearGradient(0, canvas.height * 0.7, 0, canvas.height);
+    baseGrad.addColorStop(0, 'rgba(255,80,0,0)');
+    baseGrad.addColorStop(1, 'rgba(180,40,0,0.25)');
+    ctx.fillStyle = baseGrad;
+    ctx.fillRect(0, canvas.height * 0.7, canvas.width, canvas.height * 0.3);
+
+    ctx.globalCompositeOperation = 'lighter';
+    particles.forEach(p => { p.update(); p.draw(); });
+    ctx.globalCompositeOperation = 'source-over';
+
+    requestAnimationFrame(loop);
+  }
+  loop();
+})();
+
+// ═══════════════════════════════════════════════════
+// FLOATING EMBERS
+// ═══════════════════════════════════════════════════
+(function spawnEmbers() {
+  const colors = ['#FFD700','#FFA500','#FF6B00','#FFEC80'];
+  for (let i = 0; i < 18; i++) {
+    const el = document.createElement('div');
+    el.className = 'ember';
+    const size = Math.random() * 3 + 1.5;
+    el.style.cssText = `
+      width:${size}px; height:${size}px;
+      left:${Math.random() * 100}vw;
+      bottom:${Math.random() * 20}vh;
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      animation-duration:${4 + Math.random() * 8}s;
+      animation-delay:${Math.random() * 6}s;
+      --dx:${(Math.random() - 0.5) * 80}px;
+      opacity:0;
+    `;
+    document.body.appendChild(el);
+  }
+})();
+
+// ═══════════════════════════════════════════════════
+// BOOK DATA
+// ═══════════════════════════════════════════════════
+let allBooks = [];
+let currentCategory = 'all';
+
+async function loadBooks() {
+  try {
+    const res = await fetch('data/books.json?t=' + Date.now());
+    if (!res.ok) throw new Error();
+    allBooks = await res.json();
+  } catch {
+    allBooks = defaultBooks();
+  }
+  renderHome();
+  renderLibrary();
+  buildCategoryTabs();
+}
+
+function defaultBooks() {
+  return [
+    {
+      id:          'shawarchintamani',
+      title:       'Shawarchintamani',
+      author:      'Traditional · Nath Sampradaya',
+      category:    'Scripture',
+      description: 'A sacred text of the Nath tradition.',
+      file:        'books/11 Shawarchintamani.pdf',
+      coverColor:  '#6B1800',
+      type:        'PDF',
+      featured:    true
+    },
+    {
+      id:          'matsyendrapaddhasatakam',
+      title:       'Matsyendrapaddhasatakam',
+      author:      'Matsyendranath',
+      category:    'Scripture',
+      description: 'Sacred verses attributed to the great Siddha Matsyendranath, Guru of Gorakhnath.',
+      file:        'books/3 Matsyendrapaddhasatakam.pdf',
+      coverColor:  '#1A3A0A',
+      type:        'PDF',
+      featured:    true
+    },
+  ];
+}
+
+function buildCategoryTabs() {
+  const cats = ['All Texts', ...new Set(allBooks.map(b => b.category).filter(Boolean))];
+  const container = document.getElementById('category-tabs');
+  container.innerHTML = '';
+  cats.forEach((cat, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'tab-btn' + (i === 0 ? ' active' : '');
+    btn.textContent = cat;
+    btn.onclick = () => filterByCategory(cat === 'All Texts' ? 'all' : cat, btn);
+    container.appendChild(btn);
+  });
+}
+
+function renderBookCard(book) {
+  const card = document.createElement('div');
+  card.className = 'book-card';
+  card.innerHTML = `
+    <div class="book-cover" style="background:linear-gradient(150deg,${book.coverColor||'#2C1F0A'},#0D0804);">
+      ${book.coverImage ? `<img class="book-cover-img" src="${book.coverImage}" alt="${book.title}" onerror="this.style.display='none'">` : ''}
+      <div class="book-cover-icon">📜</div>
+      <div class="book-cover-title">${book.title}</div>
+      <span class="book-type-badge">${book.type||'TEXT'}</span>
+    </div>
+    <div class="book-info">
+      <div class="book-name">${book.title}</div>
+      <div class="book-meta">${book.author||'Traditional'} · ${book.category||'Nath'}</div>
+    </div>
+    ${book.file
+      ? `<button class="read-btn" onclick="openBook('${book.id}','${book.title.replace(/'/g,"\\'")}','${book.file}')">Read Now</button>`
+      : `<button class="read-btn" style="opacity:0.35;cursor:default;">Coming Soon</button>`}
+  `;
+  return card;
+}
+
+function renderHome() {
+  const featured = allBooks.filter(b => b.featured || b.file).slice(0, 6);
+  const c = document.getElementById('featured-books');
+  c.innerHTML = '';
+  if (!featured.length) {
+    c.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="big-icon">📜</div><p>Sacred texts will appear here once uploaded.</p></div>`;
+    return;
+  }
+  featured.forEach(b => c.appendChild(renderBookCard(b)));
+}
+
+function renderLibrary(filter = '') {
+  const c = document.getElementById('library-books');
+  if (!c) return;
+  c.innerHTML = '';
+  let books = allBooks;
+  if (currentCategory !== 'all') books = books.filter(b => b.category === currentCategory);
+  if (filter) books = books.filter(b => (b.title + b.author + (b.description||'')).toLowerCase().includes(filter.toLowerCase()));
+  if (!books.length) {
+    c.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="big-icon">🔍</div><p>No texts found. The Keeper of Archives will add them soon.</p></div>`;
+    return;
+  }
+  books.forEach(b => c.appendChild(renderBookCard(b)));
+}
+
+function filterByCategory(cat, btn) {
+  currentCategory = cat;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  filterBooks();
+}
+
+function filterBooks() {
+  renderLibrary(document.getElementById('search-input')?.value || '');
+}
+
+// ═══════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════
+function showSection(name, link) {
+  ['home','library','about'].forEach(s => {
+    document.getElementById('section-' + s).style.display = s === name ? 'block' : 'none';
+  });
+  document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+  if (link) link.classList.add('active');
+  if (name === 'library') renderLibrary();
+}
+
+// ═══════════════════════════════════════════════════
+// PDF VIEWER — read only, no download
+// Uses archive.org embed viewer for archive.org files
+// ═══════════════════════════════════════════════════
+function openBook(id, title, fileUrl) {
+  if (!fileUrl || fileUrl === 'null') return;
+  document.getElementById('modalTitle').textContent = title;
+  const container = document.getElementById('pdfContainer');
+
+  let embedUrl;
+  if (fileUrl.includes('archive.org')) {
+    // Extract item ID from any archive.org URL format and use embed viewer
+    const match = fileUrl.match(/archive\.org\/(?:download|details|embed)\/([^\/\?]+)/);
+    embedUrl = match
+      ? `https://archive.org/embed/${match[1]}?ui=embed#mode/1up`
+      : fileUrl;
+  } else {
+    // Direct PDF — use PDF.js
+    embedUrl = `https://mozilla.github.io/pdf.js/web/viewer.html?file=${encodeURIComponent(fileUrl)}#toolbar=0`;
+  }
+
+  container.innerHTML = `
+    <div style="position:relative;width:100%;height:calc(100% - 44px);overflow:hidden;">
+      <iframe src="${embedUrl}" title="${title}"
+        style="width:100%;height:calc(100% + 240px);border:none;"
+        allow="fullscreen"
+        sandbox="allow-scripts allow-same-origin allow-forms"></iframe>
+      <div style="position:absolute;bottom:0;left:0;right:0;height:250px;
+        background:linear-gradient(to bottom,transparent 0%,#0D0804 35%);
+        pointer-events:none;z-index:10;"></div>
+      <div style="position:absolute;bottom:0;left:0;right:0;height:175px;
+        background:#0D0804;pointer-events:none;z-index:11;"></div>
+    </div>
+    <div style="height:44px;background:var(--dark2);border-top:1px solid rgba(232,130,12,0.3);
+      display:flex;align-items:center;justify-content:center;gap:20px;flex-shrink:0;">
+      <span style="font-family:'Cinzel',serif;font-size:0.68rem;letter-spacing:0.18em;color:var(--muted);">
+        ❖ READ-ONLY · NO DOWNLOAD ❖
+      </span>
+      <span style="font-family:'Cormorant Garamond',serif;font-size:1rem;color:rgba(240,192,64,0.6);">ॉं आदेश !</span>
+    </div>`
+  document.getElementById('pdfModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('pdfModal').classList.remove('open');
+  document.getElementById('pdfContainer').innerHTML = '';
+  document.body.style.overflow = '';
+}
+
+
+// ═══════════════════════════════════════════════════
+// ANTI-DOWNLOAD PROTECTION — blocks casual users
+// ═══════════════════════════════════════════════════
+
+// 1. Block right-click everywhere
+document.addEventListener('contextmenu', e => e.preventDefault());
+
+// 2. Block keyboard shortcuts: Ctrl+S, Ctrl+P, Ctrl+U, F12, DevTools
+document.addEventListener('keydown', e => {
+  const k = e.key.toLowerCase();
+  if (e.ctrlKey && ['s','p','u'].includes(k)) { e.preventDefault(); return; }
+  if (e.ctrlKey && e.shiftKey && ['i','j','c'].includes(k)) { e.preventDefault(); return; }
+  if (k === 'f12') { e.preventDefault(); return; }
+});
+
+// 3. Close PDF modal if devtools detected (hides the source URL from Network tab)
+setInterval(() => {
+  if (window.outerWidth - window.innerWidth > 160 ||
+      window.outerHeight - window.innerHeight > 160) {
+    closeModal();
+  }
+}, 1500);
+
+// 4. Block drag-saving
+document.addEventListener('dragstart', e => e.preventDefault());
+
+// 5. Block text selection inside modal and cards
+document.addEventListener('selectstart', e => {
+  if (e.target.closest('#pdfModal, .book-card, header, footer')) e.preventDefault();
+});
+
+// 6. Obfuscate archive URLs — encode them so they are not plain text in source
+function _enc(url) { return btoa(unescape(encodeURIComponent(url))); }
+function _dec(s)   { return decodeURIComponent(escape(atob(s))); }
+
+function openBookSafe(id, title, encodedUrl) {
+  openBook(id, title, _dec(encodedUrl));
+}
+
+// Patch renderBookCard to use encoded URLs
+const _origCard = renderBookCard;
+renderBookCard = function(book) {
+  const card = _origCard(book);
+  if (book.file) {
+    const btn = card.querySelector('.read-btn');
+    if (btn && !btn.style.cursor.includes('default')) {
+      const enc = _enc(book.file);
+      btn.setAttribute('onclick',
+        `openBookSafe('${book.id}','${book.title.replace(/'/g,"\'")}','${enc}')`);
+    }
+  }
+  return card;
+};
+
+loadBooks();
+</script>
+</body>
+</html>
