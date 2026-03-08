@@ -1,0 +1,26 @@
+[
+  {
+    "id": "shawarchintamani",
+    "title": "Shawarchintamani",
+    "author": "Traditional · Nath Sampradaya",
+    "category": "Scripture",
+    "description": "A sacred text of the Nath tradition.",
+    "file": "books/11 Shawarchintamani.pdf",
+    "coverColor": "#6B1800",
+    "type": "PDF",
+    "featured": true,
+    "addedDate": "2026-03-08"
+  },
+  {
+    "id": "matsyendrapaddhasatakam",
+    "title": "Matsyendrapaddhasatakam",
+    "author": "Matsyendranath",
+    "category": "Scripture",
+    "description": "Sacred verses attributed to the great Siddha Matsyendranath, Guru of Gorakhnath.",
+    "file": "books/3 Matsyendrapaddhasatakam.pdf",
+    "coverColor": "#1A3A0A",
+    "type": "PDF",
+    "featured": true,
+    "addedDate": "2026-03-08"
+  }
+]
